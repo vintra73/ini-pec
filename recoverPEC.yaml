@@ -1,0 +1,98 @@
+openapi: 3.0.1
+
+info:
+  title: INIPEC-recoverPEC
+  description: "API recuperare la PEC registrata in INI-PEC relativa ad un'impresa o libero professionista."
+  version: 1.0.0
+
+servers:
+- url: https://www.inipec.gov.it/recoverpec/rest/v1.0.0
+
+
+paths:
+  /{cf}:
+    get:
+      parameters:
+      - name: cf
+        in: path
+        description: cf dell'impresa o del libero professionista
+        required: true
+        schema:
+          pattern: ^([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]) | (\d{11})$
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PECvalue'
+        400:
+          description: "BAD REQUEST: \n
+                        - type: www.inipec.gov.it/errorcode/badpath, title: errore del path, detail: /{cd}, status:400"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        404:
+          description: "NOT FOUND: \n
+                        - type: www.inipec.gov.it/errorcode/domain.notfound, title: {cf} not found, status:404"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    PECvalue:
+      required:
+      - cf
+      - email
+      - denominazione
+      type: object
+      properties:
+        cf:
+          type: string
+          description: cf utilizzato per il lookup della PEC e della denominazione
+          pattern: ^([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]) | (\d{11})$          
+        email:
+          type: string
+          description: PEC presente in INI-PEC per l'indicato cf
+          format: email
+        denominazione:
+          type: string
+          description: denominazione dell'impresa o libero professionistra per l'indicato cf
+      example:
+        cf: 12345678901
+        esito: 12345678901@pec.it 
+        tipo: denominazione 12345678901
+
+    Error:
+      required:
+      - status
+      - title
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: uri che identifica il problema
+          format: uri
+        title:
+          type: string
+          description: Breve descrizione dello specifico problema verificatosi
+        detail:
+          type: string
+          description: Descrizione di dettaglio dello specifico problema verificatosi
+        status:
+          maximum: 600
+          minimum: 100
+          type: integer
+          description: HTTP status code generato dal server
+          format: int32
+      example:
+        type: www.inipec.gov.it/errorcode/badpath
+        title: errore del path
+        detail: path atteso /{cf}
+        status: 400
