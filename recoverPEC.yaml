@@ -18,11 +18,18 @@ paths:
         description: cf dell'impresa o del libero professionista
         required: true
         schema:
-          pattern: ^([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]) | (\d{11})$
+          pattern: ^([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])|(\d{11})$
           type: string
       responses:
         200:
           description: OK
+          headers:
+            Agid-JWT-Signature:
+              schema:
+                $ref: '#/components/headers/AgidJWTSignatureHeader'
+            Digest:
+              schema:
+                $ref: '#/components/headers/DigestHeader'
           content:
             application/json:
               schema:
@@ -44,6 +51,16 @@ paths:
                 $ref: '#/components/schemas/Error'
 
 components:
+  headers:
+    AgidJWTSignatureHeader:
+      description: header contenete JWT per la verifica della firma
+      schema:
+          $ref: '#/components/schemas/AgidJWSSignatureHeader' 
+    DigestHeader:
+      description: header contenete digest della firma
+      schema:
+          $ref: '#/components/schemas/DigestHeader'
+
   schemas:
     PECvalue:
       required:
@@ -55,7 +72,7 @@ components:
         cf:
           type: string
           description: cf utilizzato per il lookup della PEC e della denominazione
-          pattern: ^([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z]) | (\d{11})$          
+          pattern: ^([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])|(\d{11})$          
         email:
           type: string
           description: PEC presente in INI-PEC per l'indicato cf
@@ -67,6 +84,18 @@ components:
         cf: 12345678901
         esito: 12345678901@pec.it 
         tipo: denominazione 12345678901
+
+    AgidJWSSignatureHeader:
+      type: string
+      pattern:  ^\s*((?:[^,"]|"\s*([^"]*?)\s?")+?)(?=\s*,|$)$
+      example:
+        cFfTOCesrWTLVzxn8fmHl4AcrUs40Lv5D275FmAZ96E
+
+    DigestHeader:
+      type: string
+      pattern: ^(S256|S384|S512):\s*((?:[^,"]|"\s*([^"]*?)\s?")+?)(?=\s*,|$)$
+      example:
+        S256:cFfTOCesrWTLVzxn8fmHl4AcrUs40Lv5D275FmAZ96E
 
     Error:
       required:
