@@ -1,7 +1,7 @@
 openapi: 3.0.1
 
 info:
-  title: INIPEC-recoverPEC
+  title: INIPEC-lookupPEC
   description: "API restituisce la PEC registrata in INI-PEC relativa ad un'impresa o libero professionista.
                 L'autenticazione tra fruitore ed erogatore è assicurata dall'utilizzo del TLS mutual authentication
                 
