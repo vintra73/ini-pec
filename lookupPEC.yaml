@@ -7,8 +7,7 @@ info:
                 
                 ModI patterns applied:
                   - CRUD_REST
-                  - ID_AUTH_CHANNEL_02
-                  - INTEGRITY_REST_01
+                  - ID_AUTH_CHANNEL_02          
                 "
   version: 1.0.0
 
@@ -30,14 +29,6 @@ paths:
       responses:
         200:
           description: OK
-          headers:
-            Agid-JWT-Signature:            
-              schema:
-                $ref: '#/components/headers/AgidJWTSignatureHeader'
-            Digest:
-              description: digest del payload firmato 
-              schema:
-                $ref: '#/components/headers/DigestHeader'
           content:
             application/json:
               schema:
@@ -59,16 +50,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 
 components:
-  headers:
-    AgidJWTSignatureHeader:
-      description: header contenete JWT per la verifica della firma
-      schema:
-          $ref: '#/components/schemas/AgidJWSSignatureHeader' 
-    DigestHeader:
-      description: header contenete digest della firma
-      schema:
-          $ref: '#/components/schemas/DigestHeader'
-
   schemas:
     PECvalue:
       required:
@@ -90,20 +71,8 @@ components:
           description: denominazione dell'impresa o libero professionistra per l'indicato cf
       example:
         cf: 12345678901
-        esito: 12345678901@pec.it 
-        tipo: denominazione 12345678901
-
-    AgidJWSSignatureHeader:
-      type: string
-      pattern:  ^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?.([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?.([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$
-      example:
-        eyJhbGciOiJQUzM4NCIsImtpZCI6ImJpbGJvLmJhZ2dpbnNAaG9iYml0b24uZXhhbXBsZSJ9.SXTigJlzIGEgZGFuZ2Vyb3VzIGJ1c2luZXNzLCBGcm9kbywgZ29pbmcgb3V0IHlvdXIgZG9vci4gWW91IHN0ZXAgb250byB0aGUgcm9hZCwgYW5kIGlmIHlvdSBkb24ndCBrZWVwIHlvdXIgZmVldCwgdGhlcmXigJlzIG5vIGtub3dpbmcgd2hlcmUgeW91IG1pZ2h0IGJlIHN3ZXB0IG9mZiB0by4.cu22eBqkYDKgIlTpzDXGvaFfz6WGoz7fUDcfT0kkOy42miAh2qyBzk1xEsnk2IpN6-tPid6VrklHkqsGqDqHCdP6O8TTB5dDDItllVo6_1OLPpcbUrhiUSMxbbXUvdvWXzg-UD8biiReQFlfz28zGWVsdiNAUf8ZnyPEgVFn442ZdNqiVJRmBqrYRXe8P_ijQ7p8Vdz0TTrxUeT3lm8d9shnr2lfJT8ImUjvAA2Xez2Mlp8cBE5awDzT0qI0n6uiP1aCN_2_jLAeQTlqRHtfa64QQSUmFAAjVKPbByi7xho0uTOcbH510a6GYmJUAfmWjwZ6oD4ifKo8DYM-X72Eaw
-
-    DigestHeader:
-      type: string
-      pattern: ^(S256|S384|S512)=([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?.([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?.([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$
-      example:
-        S256=cFfTOCesrWTLVzxn8fmHl4AcrUs40Lv5D275FmAZ96E
+        email: 12345678901@pec.it 
+        denominazione: denominazione 12345678901
 
     Error:
       required:
