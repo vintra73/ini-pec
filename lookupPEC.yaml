@@ -103,7 +103,7 @@ components:
       
     LegalName:
       type: string
-      description: denominazione dell'impresa o libero professionistra per la specifica companyType
+      description: denominazione dell'impresa o libero professionistra 
 
     CompanyType:
         type: string
@@ -141,7 +141,7 @@ components:
                           Veterinari 
 
     PECResults:
-      description: Risultato di /{identifier}
+      description: Elenco delle PEC presenti in INI-PEC dato CF (identifier)
       required:
       - identifier
       - legalEntityReferenceList
