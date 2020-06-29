@@ -2,10 +2,10 @@ openapi: 3.0.1
 
 info:
   title: INIPEC-lookupPEC
-  description: "API restituisce la PEC registrata in INI-PEC relativa ad un'impresa o libero professionista.
-                L'autenticazione tra fruitore ed erogatore è assicurata dall'utilizzo del TLS mutual authentication
+  description: "API rese disponibili da INI-PEC al Catalogo delle API previsto nel modello di interoperabilita delle pubbliche amministrazioni. \n
+                L'autenticazione tra fruitore ed erogatore è assicurata dall'utilizzo del TLS mutual authentication \n
                 
-                ModI patterns applied:
+                Pattern ModI applicati:
                   - CRUD_REST
                   - ID_AUTH_CHANNEL_02          
                 "
@@ -16,63 +16,182 @@ servers:
 
 
 paths:
-  /{cf}:
+  /{identifier}:
+    description: "API per il lookup delle PEC della persona giurica associata ad un CF (identifier). \n
+                  Per un CF (identifier) è possibile che siano presenti più persone giuridiche ma per ogni coppia (identifier, companyType) esiste al più una PEC in INI-PEC."
     get:
       parameters:
-      - name: cf
+      - name: identifier
         in: path
-        description: cf dell'impresa o del libero professionista
+        description: CF (identifier) per lookup delle persone giuridiche
         required: true
         schema:
-          pattern: ^([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])|(\d{11})$
-          type: string
+          $ref: '#/components/schemas/Identifier'        
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PECvalue'
+                $ref: '#/components/schemas/PECResults'
         400:
           description: "BAD REQUEST: \n
-                        - type: www.inipec.gov.it/errorcode/badpath, title: errore del path, detail: /{cd}, status:400"
+                        - type: www.inipec.gov.it/errorcode/badpath, title: errore del path, detail: /{identifier}, status:400"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: "NOT FOUND: \n
+                        - type: www.inipec.gov.it/errorcode/domain.notfound, title: {identifier} not found, status:404"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
-        404:
-          description: "NOT FOUND: \n
-                        - type: www.inipec.gov.it/errorcode/domain.notfound, title: {cf} not found, status:404"
+  /check/{identifier}/{companyType}:
+    get:
+      description: API per verifica l'esistenza di persona giuridica identificata da CF (identifier) e companyType
+      parameters:
+      - name: identifier
+        in: path
+        description: CF (identifier) per cui si chiede la verifica
+        required: true
+        schema:
+          $ref: '#/components/schemas/Identifier'
+      - name: companyType
+        in: path
+        description: companyType da verificare per companyType
+        required: true
+        schema:
+          $ref: '#/components/schemas/CompanyType'          
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckResult'        
+        400:
+          description: "BAD REQUEST: \n
+                        - type: www.inipec.gov.it/errorcode/badpath, title: errore del path, detail: /check/{identifier}/{companyType} status:400"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        404:
+          description: "NOT FOUND: \n
+                        - type: www.inipec.gov.it/errorcode/domain.notfound, title: {identifier} with {companyType} not found, status:404"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'     
+
 
 components:
   schemas:
-    PECvalue:
+    Identifier:
+      type: string
+      description: CF (identifier) di una persona giuridica puà essere CF di una impresa o il CF di una persona fisica per impresa individuale e libero preofessionista.
+      pattern: ^([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])|(\d{11})$ 
+      
+    PEC:
+      type: string
+      description: PEC presente in INI-PEC 
+      format: email
+      
+    LegalName:
+      type: string
+      description: denominazione dell'impresa o libero professionistra per la specifica companyType
+
+    CompanyType:
+        type: string
+        description: tipologia della persona giuridica 
+                          Impresa, 
+                          Impresa individuale, 
+                          Agenti di cambio, 
+                          Agronomi e forestali, 
+                          Agrotecnici, 
+                          Architetti, 
+                          Assistenti sociali, 
+                          Attuari, 
+                          Avvocati, 
+                          Biologi, 
+                          Chimici e Fisici, 
+                          Commercialisti ed esperti contabili, 
+                          Consulenti del lavoro, 
+                          Consulenti in brevetti e marchi, 
+                          Doganalisti, 
+                          Farmacisti, 
+                          Geologi, 
+                          Geometri, 
+                          Giornalisti, 
+                          Guide Alpine, 
+                          Infermieri, 
+                          Ingegneri, 
+                          Medici e odontoiatri, 
+                          Notai, 
+                          Ostetriche, 
+                          Periti agrari, 
+                          Periti industriali, 
+                          Psicologi, 
+                          Tecnologi alimentari, 
+                          TSRM-PSTRP, 
+                          Veterinari 
+
+    PECResults:
+      description: Risultato di /{identifier}
       required:
-      - cf
-      - email
-      - denominazione
+      - identifier
+      - legalEntityReferenceList
       type: object
       properties:
-        cf:
-          type: string
-          description: cf utilizzato per il lookup della PEC e della denominazione
-          pattern: ^([A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])|(\d{11})$          
-        email:
-          type: string
-          description: PEC presente in INI-PEC per l'indicato cf
-          format: email
-        denominazione:
-          type: string
-          description: denominazione dell'impresa o libero professionistra per l'indicato cf
+        identifier:
+          $ref:  '#/components/schemas/Identifier'
+        legalEntityReferenceList:
+          type: array
+          items: 
+            $ref: '#/components/schemas/LegalReferenceEntity'
+          description: Elenco delle persone giuridiche associate al CF (identifier), per ogni companyType esiste al più una tripla (PEC, legalName, companyType)
       example:
-        cf: 12345678901
-        email: 12345678901@pec.it 
-        denominazione: denominazione 12345678901
+        identifier: RSSMRA68D05H501R
+        legalEntityReferenceList: [
+            {
+              PEC: impresaindividuale@pec.it,
+              legalName: denominazione impresa individuale,
+              companyType: impresa individuale
+            },
+            {
+              PEC: avvocato@pec.it,
+              legalName: denominazione avvocato,
+              companyType: avvocato
+            }
+          ]
+            
+    LegalReferenceEntity:
+      description: riferimento relativo a persona giuridica
+      required:
+      - PEC
+      - legalName
+      - companyType
+      type: object
+      properties:
+        PEC:
+          $ref: '#/components/schemas/PEC'
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        companyType:
+          $ref: '#/components/schemas/CompanyType'
+      example:
+        PEC: 12345678901@pec.it 
+        legalName: denominazione 12345678901
+        companyType: impresa individuale
+      
+    CheckResult:
+      description: Risultato di /check/{identifier}/{companyType}
+      type: boolean
+      example: 
+        true
 
     Error:
       required:
