@@ -72,7 +72,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CheckResult'        
+                $ref: '#/components/schemas/PEC'        
         400:
           description: "BAD REQUEST: \n
                         - type: www.inipec.gov.it/errorcode/badpath, title: errore del path, detail: /check/{identifier}/{companyType} status:400"
